@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: validate-commit-summary
+        name: Validate Commit Message Summary Line
+        language: python
+        entry: python devsupport/check_commitsummary.py
+        always_run: false
+        pass_filenames: true
+        stages: [commit-msg]
