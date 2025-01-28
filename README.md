@@ -69,7 +69,7 @@ Nice day for fishin', eh?
 
 ```
 
-Note the newlines at the end are part of the result as process() will stop only at the start of the next paragraph ("Nice ...")
+Note the newlines at the end are part of the result as process() will stop only at the start of the next paragraph ("Find ...")
 
 ## Example 3: Restart reading stream after a termination
 This example shows
