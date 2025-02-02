@@ -10,10 +10,12 @@ Stopping criteria can be:
 - Maximum number of lines with exact copies encountered previously
 
 # Installation
-## Installation via PyPi
-Not yet, TBD
-## Installation from source
-TBD
+If you haven't done so already, please install [uv](https://docs.astral.sh/uv/) as this Python package and project manager basically makes all headaches of Python package management go away in an instant.
+
+With `uv`, adding *dm-streamvalve* to your project is as easy as
+```shell
+uv add dm-streamvalve
+```
 
 # Usage
 You need to import StreamValve, instantiate an StreamValve object, and then call
