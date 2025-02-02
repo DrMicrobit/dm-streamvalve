@@ -69,6 +69,13 @@ class StreamValve:
             Maximum number of paragraphs allowed. Defaults to 0 (no limit).
     """
 
+    # Really, pylint and ruff, this is not what you need to check here;
+    # R0902: Too many instance attributes  (too-many-instance-attributes)
+    # R0913: Too many arguments (too-many-arguments)
+    # R0917: Too many positional arguments (too-many-positional-arguments)
+    # too-many-arguments (PLR0913)
+
+    # pylint: disable=R0902, R0913, R0917
     def __init__(  # noqa: PLR0913
         self,
         ostream: Iterable[Any],

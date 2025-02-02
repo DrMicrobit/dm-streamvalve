@@ -3,5 +3,5 @@ max-line-length=110
 
 [MESSAGES CONTROL]
 # duplicate of Ruff PLR...
-disable=R0912, R0913, R0915
+#disable=R0912, R0913, R0915
 
