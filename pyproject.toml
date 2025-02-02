@@ -1,12 +1,20 @@
 [project]
 name = "dm-streamvalve"
 version = "0.0.4"
-description = "Add your description here"
+description = "Reconstruct a text string from an Iterable, with optional stopping criteria"
 readme = "README.md"
 authors = [
     { name = "Bastien Chevreux", email = "bach@chevreux.org" }
 ]
 requires-python = ">=3.13"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+]
 dependencies = []
 
 [build-system]
@@ -20,3 +28,8 @@ dev = [
     "pytest-cov>=6.0.0",
     "rich>=13.9.4",
 ]
+
+[project.urls]
+Homepage = "https://github.com/DrMicrobit/dm-streamvalve"
+GitHub = "https://github.com/DrMicrobit/dm-streamvalve"
+Issues = "https://github.com/DrMicrobit/dm-streamvalve/issues"
