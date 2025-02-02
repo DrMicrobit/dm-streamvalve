@@ -1,5 +1,6 @@
-# dm-streamvalve
+![pylint workflow](https://github.com/DrMicrobit/dm-streamvalve/actions/workflows/.github/workflows/pylint.yml/badge.svg)
 
+# dm-streamvalve
 Python package to reconstruct text as a string from an Iterable with optional stopping criteria.
 
 Nothing stellar, initially developed to work with the Ollama Python module to be able to stop the output after, e.g. two paragraphs. Or to stop the output when a model got stuck in an endless loop, constantly repeating some lines over and over again.
