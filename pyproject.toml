@@ -1,6 +1,6 @@
 [project]
 name = "dm-streamvalve"
-version = "0.0.4"
+version = "0.0.5"
 description = "Reconstruct a text string from an Iterable, with optional stopping criteria"
 readme = "README.md"
 authors = [

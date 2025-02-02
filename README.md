@@ -207,7 +207,7 @@ This example shows how to:
 - setting multiple stopping criteria as fail-safe 
 
 > [!IMPORTANT]
-> For the code below to work, you need to have (1) [Ollama](https://ollama.com) installed and running and (2) your Python project needs to have the Ollama Python module installed via, e.g., `uv add ollama`.
+> For the code below to work, you need to have (1) [Ollama](https://ollama.com) installed and running, the *llama3.1* model installed in Ollama (`ollama pull llama3.1`), and (3) your Python project needs to have the Ollama Python module installed via, e.g., `uv add ollama`.
 
 ```python
 import ollama
