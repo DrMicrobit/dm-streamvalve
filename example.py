@@ -2,6 +2,11 @@
 
 """Simple examples for using StreamValve"""
 
+# Take out this file completely from linting, doesn't make sense
+#
+# pylint: skip-file
+# flake8: noqa
+
 from dm_streamvalve.streamvalve import StreamValve
 
 # Example 1: streaming complete Iterable
