@@ -148,7 +148,8 @@ Nice day for fishin', eh?
 
 ```
 
-> [!NOTE] the newlines at the end are part of the result as process() will stop only at the start of the next paragraph ("Find ...")
+> [!NOTE]
+> The newlines at the end are part of the result as process() will stop only at the start of the next paragraph ("Find ...")
 
 ## Example 3: Restart reading stream after stopping
 This example shows
@@ -204,6 +205,9 @@ This example shows how to:
 - monitor the output of Ollama on stdout as it is generated via having `callback_token` point to a function (here: `monitor`)
 - extract the text from every element of the Ollama ChatResponse stream to make it available to StreamValve via `callback_extract`. 
 - setting multiple stopping criteria as fail-safe 
+
+> [!IMPORTANT]
+> For the code below to work, you need to have (1) [Ollama](https://ollama.com) installed and running and (2) your Python project needs to have the Ollama Python module installed via, e.g., `uv add ollama`.
 
 ```python
 import ollama
