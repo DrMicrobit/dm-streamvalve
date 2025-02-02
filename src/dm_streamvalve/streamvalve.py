@@ -40,31 +40,33 @@ class StreamValve:
     Allows early termination on repeated lines, maximum number of lines, maximum number
      of paragraphs, or a termination signal from the callback.
 
-    Args:
-        ostream (Iterable): Iterable of Any to reconstruct the text from.
-        callback_extract (Callable):
-                            If None, calls 'str()' on each element of the iterable to get next string
-                             of the stream retun type.
-                            If not None, calls the function to extract the string
-                            If return value is None instead of a str, leads to early termination.
-                            Useful for, e.g., ollama where each element in the ostream
-                             is of type ollama.ChatResponse(), and the string of that is in
-                             ["message"]["content"] of each element
-        callback_token (Callable):
-                            Each time an element of the stream has been added to the result, i.e.,
-                             it did not lead to termination, this callback is called if not None.
-                            Can be used, e.g., to stream the processing as it happens.
-                            Unfortunately, the repeated line termination will have been streamed.
-        callback_line (Callable):
-                            Similar to callback token, but for each completed line. If the line
-                            did not trigger max_linerepeats, this callback is called.
-                            Can be used, e.g., to stream only fully accepted lines.
-        max_linerepeats (int):
-                            Maximum number of line repeats allowed. Defaults to 0 (no limit).
-        max_lines (int):
-                            Maximum number of lines allowed. Defaults to 0 (no limit).
-        max_paragraphs (int):
-                            Maximum number of paragraphs allowed. Defaults to 0 (no limit).
+    Required args:
+        ostream (Iterable):
+            Iterable of Any to reconstruct the text from.
+    Optional args:
+        callback_extract : Callable
+            If None, calls 'str()' on each element of the iterable to get next string
+             of the stream retun type.
+            If not None, calls the function given to extract the string
+            If return value is None instead of a str, leads to early termination.
+            Useful for, e.g., ollama where each element in the ostream
+             is of type ollama.ChatResponse(), and the string of that is in
+             ["message"]["content"] of each element
+        callback_token : Callable
+            Each time an element of the stream has been added to the result, i.e.,
+             it did not lead to termination, this callback is called if not None.
+            Can be used, e.g., to stream the processing as it happens.
+            Unfortunately, the repeated line termination will have been streamed.
+        callback_line : Callable
+            Similar to callback token, but for each completed line. If the line
+            did not trigger max_linerepeats, this callback is called.
+            Can be used, e.g., to stream only fully accepted lines.
+        max_linerepeats : int
+            Maximum number of line repeats allowed. Defaults to 0 (no limit).
+        max_lines : int
+            Maximum number of lines allowed. Defaults to 0 (no limit).
+        max_paragraphs : int
+            Maximum number of paragraphs allowed. Defaults to 0 (no limit).
     """
 
     def __init__(  # noqa: PLR0913
@@ -178,15 +180,15 @@ class StreamValve:
             dict{
                 "text": str,
                 "num_lines": int,
-                "self._num_paragraphs": int,
-                "stopcrit": None | StopReason,
-                "stopmsg": None | str,
+                "num_paragraphs": int,
+                "stopcrit": StopReason,
+                "stopmsg": str,
                 "stopat": None | str,
             }
             A dict containing reconstructed text, number of lines, number of paragraphs,
             and stop criterion and the string stopped at if an early termination occured. If termination
             was initiated by callable() returning None, stopat may be None if the signal
-            by the callable was the only reason for stopping, else it conatains the token/string
+            by the callable was the only reason for stopping, else it contains the token/string
             which led to termination.
         """
 
