@@ -6,5 +6,6 @@
         "tamasfe.even-better-toml",
         "aaron-bond.better-comments",
         "bierner.markdown-mermaid",
+        "ban.spellright"
     ]
 }
