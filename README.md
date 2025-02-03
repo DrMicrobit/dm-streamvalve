@@ -1,4 +1,5 @@
-![pylint workflow](https://github.com/DrMicrobit/dm-streamvalve/actions/workflows/.github/workflows/pylint.yml/badge.svg)
+![pylint workflow](https://github.com/DrMicrobit/dm-streamvalve/actions/workflows/pylint.yml/badge.svg)
+![pytest workflow](https://github.com/DrMicrobit/dm-streamvalve/actions/workflows/pytest.yml/badge.svg)
 
 # dm-streamvalve
 Python package to reconstruct text as a string from an Iterable with optional stopping criteria.
