@@ -89,7 +89,7 @@ wheels = [
 
 [[package]]
 name = "dm-streamvalve"
-version = "0.0.5"
+version = "0.0.6"
 source = { editable = "." }
 
 [package.dev-dependencies]
