@@ -1,6 +1,6 @@
 [project]
 name = "dm-streamvalve"
-version = "0.0.5"
+dynamic = ["version"]
 description = "Reconstruct a text string from an Iterable, with optional stopping criteria"
 readme = "README.md"
 authors = [
@@ -14,12 +14,26 @@ classifiers = [
     "Operating System :: OS Independent",
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
 ]
 dependencies = []
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "semver"
+
+# VScode / Even Better TOML will complain in next two sections
+# But works.
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.hatch.build.hooks.uv-dynamic-versioning]
+version-file = "src/dm_streamvalve/__version__.py"
+
 
 [dependency-groups]
 dev = [
@@ -27,6 +41,7 @@ dev = [
     "pre-commit>=4.1.0",
     "pytest-cov>=6.0.0",
     "rich>=13.9.4",
+    "uv-dynamic-versioning>=0.5.0",
 ]
 
 [project.urls]
