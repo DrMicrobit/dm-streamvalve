@@ -1,3 +1,5 @@
+"""__init__ for dm_streamvalve"""
+
 import importlib.metadata
 
 try:

@@ -77,7 +77,8 @@ class StreamValve:
     # R0917: Too many positional arguments (too-many-positional-arguments)
     # too-many-arguments (PLR0913)
 
-    def __init__(  # pylint: disable=R0902, R0913, R0917
+    # pylint: disable=R0902, R0913, R0917
+    def __init__(
         self,
         ostream: Iterable[Any],
         callback_extract: Callable[[Any], str | None] | None = None,
