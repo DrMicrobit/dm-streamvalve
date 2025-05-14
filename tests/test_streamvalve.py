@@ -131,12 +131,12 @@ def test_earlyterm_maxlinetokens():
     toolong_txt = ["Line 1\n", "This", " ", "line", " ", "will", " ", "be", " ", "too", " ", "long"]
     s = StreamValve(toolong_txt, max_linetokens=8)
     assert s.process() == {
-        "text": "Line 1\nThis line will be ",
-        "num_tokens": 9,
+        "text": "Line 1\nThis line will be too",
+        "num_tokens": 10,
         "num_lines": 2,
         "num_paragraphs": 1,
         "stopcrit": StopCriterion.MAX_LINETOKENS,
-        "stopat": " ",
+        "stopat": "too",
         "stopmsg": "Maximum number of tokens in a line reached.",
     }
 

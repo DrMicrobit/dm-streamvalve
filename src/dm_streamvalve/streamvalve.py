@@ -106,7 +106,8 @@ class StreamValve:
         self._line_repcounts: defaultdict[str, int]  # Track occurrence of each line.
         self._nextchar_is_next_para: bool  # If true, next non-blank line initiates new paragraph
         self._num_paragraphs: int  # Track paragraph count.
-        self._num_tokens: int  # Track token count.
+        self._num_tokens: int  # Track total token count
+        self._num_linetokens: int  # Track line token count
 
         # To allow restarting process() after an early termination()
         self._laststopat: str | None  # string last read from the stream but not yet processed
@@ -122,6 +123,7 @@ class StreamValve:
         """Resets the StreamValve except laststopat"""
         self._num_paragraphs = 0
         self._num_tokens = 0
+        self._num_linetokens = 0
         self._line_repcounts = defaultdict(int)
         self._completed_lines = []
         self._current_line = []
@@ -154,9 +156,10 @@ class StreamValve:
         if len(strchunk) > 0:
             self._current_line.append(strchunk)
             self._num_tokens += 1
+            self._num_linetokens += 1
             if self._p_callback_token is not None:
                 self._p_callback_token(strchunk)
-            if self._p_max_linetokens > 0 and self._num_tokens > self._p_max_linetokens:  # pylint: disable=R1716
+            if self._p_max_linetokens > 0 and self._num_linetokens > self._p_max_linetokens:  # pylint: disable=R1716
                 retval["stopcrit"] = StopCriterion.MAX_LINETOKENS
                 retval["stopat"] = strchunk
                 # No return here ... we need to add what was collected till now
@@ -170,6 +173,7 @@ class StreamValve:
         full_line = "".join(self._current_line)
         self._completed_lines.append(full_line)
         self._current_line.clear()
+        self._num_linetokens = 0
 
         lenstripline = len(full_line.strip())
         if lenstripline == 0:
