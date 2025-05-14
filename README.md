@@ -21,7 +21,7 @@ uv add dm-streamvalve
 ```
 
 # Usage
-You need to import StreamValve, instantiate an StreamValve object, and then call
+You need to import StreamValve, instantiate a StreamValve object, and then call
 `process()` to start processing the stream. Results, including information on the reason
 for the processing having stopped, are returned in a dictionary
 
@@ -48,7 +48,7 @@ line has been accepted into the result.
 
 Allows early stopping on repeated lines, maximum number of lines, maximum number of paragraphs, or a termination signal from the callback.
 
-StreamValve(ostream, *callback_extract = None, callback_token = None, callback_line = None, max_linerepeats = 0, max_lines = 0, max_paragraphs = 0*)
+StreamValve(ostream, *callback_extract = None, callback_token = None, callback_line = None, max_linerepeats = 0, max_lines = 0, max_paragraphs = 0, max_linetokens=0*)
 
 Required args:
 
@@ -57,19 +57,19 @@ Iterable of Any to reconstruct the text from.
 
 Optional args:
 
-- **callback_extract : Callable**
+- **callback_extract : Callable[[Any], str | None]**
 If None, calls 'str()' on each element of the iterable to get next string of the stream
 return type.  
 If not None, calls the function to extract the string  
 If return value is None instead of a str, leads to early termination.
 Useful for, e.g., Ollama where each element in the ostream is of type
 ollama.ChatResponse(), and the string of that is in ["message"]["content"] of each element
-- **callback_token : Callable**
+- **callback_token : Callable[[str], None]**
 Each time an element of the stream has been added to the result, i.e.,
  it did not lead to termination, this callback is called if not None.  
 Can be used, e.g., to stream the processing as it happens.  
 Unfortunately, the repeated line termination will have been streamed.
-- **callback_line : Callable**
+- **callback_line : Callable[[str], None]**
 Similar to callback token, but for each completed line. If the line
 did not trigger max_linerepeats, this callback is called.  
 Can be used, e.g., to stream only fully accepted lines.
@@ -89,12 +89,13 @@ termination occurred.
 
 Returns:
 An object of type StreamData, which is of type dict[str, Any] The following fields will be defined and set:
-- "text": str,
-- "num_lines": int,
-- "num_paragraphs": int,
-- "stopcrit": StopReason,
-- "stopmsg": str,
-- "stopat": None | str,
+- "text": str,  # The text reconstructed as string
+- "num_tokens": int,  # Number of tokens processed
+- "num_lines": int,  # Number of lines in the reconstructed text
+- "num_paragraphs": int,  # Number of paragraphs in the reconstructed text
+- "stopcrit": StopReason,  # Enum, the reason why processing of the stream stopped
+- "stopmsg": str,  # a human readable message for the above stop criterion
+- "stopat": None | str,  # token that led to stop of processing or None if reason was end of stream
 
 If termination was initiated by callable() returning None, stopat may be None if the signal
 by the callable was the only reason for stopping, else it contains the token/string
@@ -103,7 +104,7 @@ which led to termination.
 # Usage examples
 
 ## Full example 1: get complete stream
-This example shows streaming complete Iterable, in this case a list of strings.
+This example shows streaming a complete Iterable, from start to end. In this case a list of strings.
 
 ```python
 from dm_streamvalve.streamvalve import StreamValve
@@ -180,7 +181,7 @@ sv = StreamValve(
 print(sv.process()["text"])
 
 print("*** Above are the first animals, from Zebra to Gnu, as the 4th Zebra triggered a stop.")
-print("*** You can continue the processing.")
+print("*** You can continue the processing, the Zebra which triggered the stop will be 1st.")
 
 print(sv.process()["text"])
 ```
@@ -198,7 +199,7 @@ Here are african animals:
 - Gnu
 
 *** Above are the first animals, from Zebra to Gnu, as the 4th Zebra triggered a stop.
-*** As previously, you can continue the processing.
+*** You can continue the processing, the Zebra which triggered the stop will be 1st.
 - Zebra
 - Antelope
 ```
