@@ -12,6 +12,7 @@ from dm_streamvalve.streamvalve import StopCriterion, StreamValve
 
 retval_empty = {
     "text": "",
+    "num_tokens": 0,
     "num_lines": 0,
     "num_paragraphs": 0,
     "stopcrit": StopCriterion.END_OF_STREAM,
@@ -41,6 +42,7 @@ def test_join():
     s = StreamValve(["He", "l", "", "lo"])
     assert s.process() == {
         "text": "Hello",
+        "num_tokens": 3,
         "num_lines": 1,
         "num_paragraphs": 1,
         "stopcrit": StopCriterion.END_OF_STREAM,
@@ -61,6 +63,7 @@ def test_counts():
     )
     assert s.process() == {
         "text": "Hello\nWorld\n\nNice day for fishin', eh?\n\n\n\nFind that reference :-)\n",
+        "num_tokens": 9,
         "num_lines": 8,
         "num_paragraphs": 3,
         "stopcrit": StopCriterion.END_OF_STREAM,
@@ -69,29 +72,6 @@ def test_counts():
     }
 
 
-# Test early termination
-# earlyterm_txt = [
-#    (
-#        "The sky appears blue to our eyes due to a phenomenon called Rayleigh"
-#        " scattering, named after the British physicist Lord Rayleigh who first"
-#        " described it in the late 19th century. This scattering occurs when"
-#        " sunlight enters Earth's atmosphere and encounters tiny molecules"
-#        " of gases such as nitrogen and oxygen.\n"
-#    ),
-#    "\n",
-#    (
-#        "As sunlight travels through the atmosphere, it collides with these gas"
-#        " molecules. The shorter (blue) wavelengths are scattered more than the"
-#        " longer (red) wavelengths by the smaller molecules. This is because the"
-#        " smaller molecules can change direction more easily due to their size"
-#        " and mass. As a result, the blue light is dispersed in all directions,"
-#        " giving the sky its blue color.\n"
-#    ),
-#    "\n",
-#    "And so on, and so on ...\n",
-# ]
-#
-
 earlyterm_txt = ["Test line.rep\n", "\n", "rep\n", "rep\n\n", "rep", "\n", "\nLast line"]
 
 
@@ -99,6 +79,7 @@ def test_earlyterm_noterm():
     s = StreamValve(earlyterm_txt)
     assert s.process() == {
         "text": "Test line.rep\n\nrep\nrep\n\nrep\n\nLast line",
+        "num_tokens": 9,
         "num_lines": 8,
         "num_paragraphs": 4,
         "stopcrit": StopCriterion.END_OF_STREAM,
@@ -111,6 +92,7 @@ def test_earlyterm_maxlinerep():
     s = StreamValve(earlyterm_txt, max_linerepeats=2)
     assert s.process() == {
         "text": "Test line.rep\n\nrep\nrep\n\n",
+        "num_tokens": 7,
         "num_lines": 5,
         "num_paragraphs": 2,
         "stopcrit": StopCriterion.MAX_LINEREPEATS,
@@ -123,6 +105,7 @@ def test_earlyterm_maxpara():
     s = StreamValve(earlyterm_txt, max_paragraphs=2)
     assert s.process() == {
         "text": "Test line.rep\n\nrep\nrep\n\n",
+        "num_tokens": 5,
         "num_lines": 5,
         "num_paragraphs": 2,
         "stopcrit": StopCriterion.MAX_PARAGRAPHS,
@@ -135,11 +118,26 @@ def test_earlyterm_maxlines():
     s = StreamValve(earlyterm_txt, max_lines=2)
     assert s.process() == {
         "text": "Test line.rep\n\n",
+        "num_tokens": 2,
         "num_lines": 2,
         "num_paragraphs": 1,
         "stopcrit": StopCriterion.MAX_LINES,
         "stopat": "rep\n",
         "stopmsg": "Maximum number of lines reached.",
+    }
+
+
+def test_earlyterm_maxlinetokens():
+    toolong_txt = ["Line 1\n", "This", " ", "line", " ", "will", " ", "be", " ", "too", " ", "long"]
+    s = StreamValve(toolong_txt, max_linetokens=8)
+    assert s.process() == {
+        "text": "Line 1\nThis line will be ",
+        "num_tokens": 9,
+        "num_lines": 2,
+        "num_paragraphs": 1,
+        "stopcrit": StopCriterion.MAX_LINETOKENS,
+        "stopat": " ",
+        "stopmsg": "Maximum number of tokens in a line reached.",
     }
 
 
@@ -162,6 +160,7 @@ def test_continue_after_earlyterm():
     s = StreamValve(earlyterm_txt, max_lines=2)
     assert s.process() == {
         "text": "Test line.rep\n\n",
+        "num_tokens": 2,
         "num_lines": 2,
         "num_paragraphs": 1,
         "stopcrit": StopCriterion.MAX_LINES,
@@ -171,6 +170,7 @@ def test_continue_after_earlyterm():
     print("++++++++++++")
     assert s.process() == {
         "text": "rep\nrep\n",
+        "num_tokens": 2,
         "num_lines": 2,
         "num_paragraphs": 1,
         "stopcrit": StopCriterion.MAX_LINES,
@@ -180,6 +180,7 @@ def test_continue_after_earlyterm():
     print("++++++++++++")
     assert s.process() == {
         "text": "\nrep\n",
+        "num_tokens": 3,
         "num_lines": 2,
         "num_paragraphs": 1,
         "stopcrit": StopCriterion.MAX_LINES,
@@ -188,15 +189,17 @@ def test_continue_after_earlyterm():
     }
     assert s.process() == {
         "text": "\nLast line",
+        "num_tokens": 1,
         "num_lines": 1,
         "num_paragraphs": 1,
         "stopcrit": StopCriterion.END_OF_STREAM,
         "stopat": None,
         "stopmsg": "Stream ended.",
     }
-    # Stream is be exhausted by now, subsequent calls should get this
+    # Stream is exhausted by now, subsequent calls should get this
     assert s.process() == {
         "text": "",
+        "num_tokens": 0,
         "num_lines": 0,
         "num_paragraphs": 0,
         "stopcrit": StopCriterion.END_OF_STREAM,
@@ -206,7 +209,7 @@ def test_continue_after_earlyterm():
 
 
 # Test callable
-
+# Define as test a stream of tuples to simulate a stream of customized elements
 stream_tuples = [
     ("Test line.rep\n", 0),
     ("\n", 0),
@@ -217,13 +220,15 @@ stream_tuples = [
 ]
 
 
-def test_callable():
+def test_callable_extractor():
     def extractor(tup: tuple[str, int]) -> str:
+        # in our customized stream, the text is in first element of the tuple
         return tup[0]
 
-    s = StreamValve(stream_tuples, extractor)
+    s = StreamValve(stream_tuples, callback_extract=extractor)
     assert s.process() == {
         "text": "Test line.rep\n\nrep\nrep\n\nrep\n\nLast line",
+        "num_tokens": 8,
         "num_lines": 8,
         "num_paragraphs": 4,
         "stopcrit": StopCriterion.END_OF_STREAM,
@@ -241,6 +246,7 @@ def test_callable_earlystop():
     s = StreamValve(stream_tuples, extractor)
     assert s.process() == {
         "text": "Test line.rep\n\nrep\n",
+        "num_tokens": 3,
         "num_lines": 3,
         "num_paragraphs": 2,
         "stopcrit": StopCriterion.BY_CALLABLE,
@@ -254,6 +260,7 @@ def test_newline_not_repeat():
     s = StreamValve(["Test.\n", "\n", "\n", "\n", "\n", "Last line."], max_linerepeats=2)
     assert s.process() == {
         "text": "Test.\n\n\n\n\nLast line.",
+        "num_tokens": 6,
         "num_lines": 6,
         "num_paragraphs": 2,
         "stopcrit": StopCriterion.END_OF_STREAM,

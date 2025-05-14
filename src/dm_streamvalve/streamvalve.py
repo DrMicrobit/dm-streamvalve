@@ -19,6 +19,7 @@ class StopCriterion(Enum):
     MAX_LINEREPEATS = auto()
     MAX_PARAGRAPHS = auto()
     MAX_LINES = auto()
+    MAX_LINETOKENS = auto()
     BY_CALLABLE = auto()
     END_OF_STREAM = auto()
 
@@ -27,6 +28,7 @@ STOP_MESSAGES: dict[StopCriterion, str] = {
     StopCriterion.MAX_LINEREPEATS: "Maximum number of exact repeated lines reached.",
     StopCriterion.MAX_PARAGRAPHS: "Maximum number of paragraphs reached.",
     StopCriterion.MAX_LINES: "Maximum number of lines reached.",
+    StopCriterion.MAX_LINETOKENS: "Maximum number of tokens in a line reached.",
     StopCriterion.BY_CALLABLE: "Streamvalve stopped externally.",
     StopCriterion.END_OF_STREAM: "Stream ended.",
 }
@@ -44,20 +46,20 @@ class StreamValve:
         ostream (Iterable):
             Iterable of Any to reconstruct the text from.
     Optional args:
-        callback_extract : Callable
+        callback_extract : Callable[[Any], str | None]
             If None, calls 'str()' on each element of the iterable to get next string
-             of the stream retun type.
+             of the stream return type.
             If not None, calls the function given to extract the string
             If return value is None instead of a str, leads to early termination.
             Useful for, e.g., ollama where each element in the ostream
              is of type ollama.ChatResponse(), and the string of that is in
              ["message"]["content"] of each element
-        callback_token : Callable
+        callback_token : Callable[[str], None]
             Each time an element of the stream has been added to the result, i.e.,
              it did not lead to termination, this callback is called if not None.
             Can be used, e.g., to stream the processing as it happens.
             Unfortunately, the repeated line termination will have been streamed.
-        callback_line : Callable
+        callback_line : Callable[[str], None]
             Similar to callback token, but for each completed line. If the line
             did not trigger max_linerepeats, this callback is called.
             Can be used, e.g., to stream only fully accepted lines.
@@ -85,6 +87,7 @@ class StreamValve:
         max_linerepeats: int = 0,
         max_lines: int = 0,
         max_paragraphs: int = 0,
+        max_linetokens: int = 0,
     ):
         self._p_ostream = ostream
         self._p_callback_extract = callback_extract
@@ -92,6 +95,7 @@ class StreamValve:
         self._p_callback_line = callback_line
         self._p_max_linerepeats = max_linerepeats
         self._p_max_lines = max_lines
+        self._p_max_linetokens = max_linetokens
         self._p_max_paragraphs = max_paragraphs
 
         # Iterator for the stream
@@ -103,6 +107,7 @@ class StreamValve:
         self._line_repcounts: defaultdict[str, int]  # Track occurrence of each line.
         self._nextchar_is_next_para: bool  # If true, next non-blank line initiates new paragraph
         self._num_paragraphs: int  # Track paragraph count.
+        self._num_tokens: int  # Track token count.
 
         # To allow restarting process() after an early termination()
         self._laststopat: str | None  # string last read from the stream but not yet processed
@@ -117,6 +122,7 @@ class StreamValve:
     def _reset(self):
         """Resets the StreamValve except laststopat"""
         self._num_paragraphs = 0
+        self._num_tokens = 0
         self._line_repcounts = defaultdict(int)
         self._completed_lines = []
         self._current_line = []
@@ -144,9 +150,14 @@ class StreamValve:
                 return
         if len(strchunk) > 0:
             self._current_line.append(strchunk)
+            self._num_tokens += 1
             if self._p_callback_token is not None:
                 self._p_callback_token(strchunk)
-            if strchunk[-1] != "\n":
+            if self._p_max_linetokens > 0 and self._num_tokens > self._p_max_linetokens:  # pylint: disable=R1716
+                retval["stopcrit"] = StopCriterion.MAX_LINETOKENS
+                retval["stopat"] = strchunk
+                # No return here ... we need to add what was collected till now
+            elif strchunk[-1] != "\n":
                 return
 
         if len(self._current_line) == 0:
@@ -186,6 +197,7 @@ class StreamValve:
             The following fields will be defined and set:
             dict{
                 "text": str,
+                "num_tokens": int,
                 "num_lines": int,
                 "num_paragraphs": int,
                 "stopcrit": StopReason,
@@ -201,6 +213,7 @@ class StreamValve:
 
         retval: StreamData = {
             "text": None,
+            "num_tokens": None,
             "num_lines": None,
             "num_paragraphs": None,
             "stopcrit": None,
@@ -253,6 +266,7 @@ class StreamValve:
 
         # Add remaining values to retval dict
         retval["text"] = "".join(self._completed_lines)
+        retval["num_tokens"] = self._num_tokens
         retval["num_lines"] = len(self._completed_lines)
         retval["num_paragraphs"] = self._num_paragraphs
 
