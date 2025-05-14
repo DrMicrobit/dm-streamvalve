@@ -31,7 +31,7 @@ extend-exclude = [
     "site-packages",
     "venv",
 ]
-line-length = 110
+line-length = 100
 indent-width = 4
 target-version = "py313"
 
@@ -73,7 +73,10 @@ extend-select = [
     # isort
     "I",
 ]
-ignore = []
+ignore = [
+    "PLR1711", # Sorry, non-negotiable: returns are helpful both for human and code editor
+    "SIM108", # Sorry, too opinionated. Ternary operators are not always more readable than if else
+]
 fixable = ["ALL"]
 unfixable = []
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
@@ -85,3 +88,9 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
+
+[lint.pycodestyle]
+max-line-length = 100
+
+[lint.pylint]
+max-args = 10  # yeah, 10 args not 5 as max

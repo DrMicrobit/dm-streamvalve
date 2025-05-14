@@ -77,8 +77,7 @@ class StreamValve:
     # R0917: Too many positional arguments (too-many-positional-arguments)
     # too-many-arguments (PLR0913)
 
-    # pylint: disable=R0902, R0913, R0917
-    def __init__(  # noqa: PLR0913
+    def __init__(  # pylint: disable=R0902, R0913, R0917
         self,
         ostream: Iterable[Any],
         callback_extract: Callable[[Any], str | None] | None = None,
@@ -128,7 +127,7 @@ class StreamValve:
         self._current_line = []
         self._nextchar_is_next_para = True
 
-    def _process_txtchunk(self, strchunk: str, retval: StreamData):
+    def _process_txtchunk(self, strchunk: str, retval: StreamData):  # noqa: PLR0912  # pylint: disable=R0912
         """Helper function for processing text chunks. Reads / writes variables of class
         and the retval which is passed on from process().
 
@@ -136,7 +135,11 @@ class StreamValve:
         """
 
         lenstripchunk = len(strchunk.strip())
-        if self._p_max_lines > 0 and len(strchunk) > 0 and len(self._completed_lines) >= self._p_max_lines:  # pylint: disable=R1716
+        if (
+            self._p_max_lines > 0
+            and len(strchunk) > 0
+            and len(self._completed_lines) >= self._p_max_lines
+        ):  # pylint: disable=R1716
             retval["stopcrit"] = StopCriterion.MAX_LINES
             retval["stopat"] = strchunk
             return
@@ -205,10 +208,10 @@ class StreamValve:
                 "stopat": None | str,
             }
             A dict containing reconstructed text, number of lines, number of paragraphs,
-            and stop criterion and the string stopped at if an early termination occured. If termination
-            was initiated by callable() returning None, stopat may be None if the signal
-            by the callable was the only reason for stopping, else it contains the token/string
-            which led to termination.
+            and stop criterion and the string stopped at if an early termination occured. If
+            termination was initiated by callable() returning None, stopat may be None if the
+            signal by the callable was the only reason for stopping, else it contains the
+            token/string which led to termination.
         """
 
         retval: StreamData = {
@@ -233,7 +236,11 @@ class StreamValve:
             # Manually iterate through the iterator using a sentinel
             while (chunk := next(self._iterator, sentinel)) is not sentinel:
                 # call callback if user provided one
-                txt = str(chunk) if self._p_callback_extract is None else self._p_callback_extract(chunk)
+                txt = (
+                    str(chunk)
+                    if self._p_callback_extract is None
+                    else self._p_callback_extract(chunk)
+                )
                 # go through that text chunk line by line
                 if txt is not None:
                     splitted = txt.splitlines(keepends=True)
