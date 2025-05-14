@@ -257,12 +257,14 @@ def test_callable_earlystop():
 
 # for increasing coverage of the source
 def test_callable_token_and_line():
-    def cbtoken(token: str) -> None:
-        # we could, e.g., print the token
+    def cbtoken(token: str) -> None:  # pylint: disable=W0613
+        # quietened pylint in line above
+        # in real code we could, e.g., print the token
         return
 
-    def cbline(line: str) -> None:
-        # we could, e.g., print the line
+    def cbline(line: str) -> None:  # pylint: disable=W0613
+        # quietened pylint in line above
+        # in real code  we could, e.g., print the line
         return
 
     tsttxt = ["some ", "test"]
