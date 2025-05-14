@@ -255,6 +255,29 @@ def test_callable_earlystop():
     }
 
 
+# for increasing coverage of the source
+def test_callable_token_and_line():
+    def cbtoken(token: str) -> None:
+        # we could, e.g., print the token
+        return
+
+    def cbline(line: str) -> None:
+        # we could, e.g., print the line
+        return
+
+    tsttxt = ["some ", "test"]
+    s = StreamValve(tsttxt, callback_token=cbtoken, callback_line=cbline)
+    assert s.process() == {
+        "text": "some test",
+        "num_tokens": 2,
+        "num_lines": 1,
+        "num_paragraphs": 1,
+        "stopcrit": StopCriterion.END_OF_STREAM,
+        "stopmsg": "Stream ended.",
+        "stopat": None,
+    }
+
+
 # Test bug which happened:
 def test_newline_not_repeat():
     s = StreamValve(["Test.\n", "\n", "\n", "\n", "\n", "Last line."], max_linerepeats=2)
