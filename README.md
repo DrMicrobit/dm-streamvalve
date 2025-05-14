@@ -10,6 +10,7 @@ Stopping criteria can be:
 - Maximum number of lines encountered
 - Maximum number of paragraphs encountered. Paragraphs being text blocks separated by one or several blank lines
 - Maximum number of lines with exact copies encountered previously
+- Maximum number of tokens encountered in a line
 
 # Installation
 If you haven't done so already, please install [uv](https://docs.astral.sh/uv/) as this Python package and project manager basically makes all headaches of Python package management go away in an instant.
@@ -56,28 +57,30 @@ Iterable of Any to reconstruct the text from.
 
 Optional args:
 
-- **callback_extract : Callable**  
+- **callback_extract : Callable**
 If None, calls 'str()' on each element of the iterable to get next string of the stream
 return type.  
 If not None, calls the function to extract the string  
 If return value is None instead of a str, leads to early termination.
 Useful for, e.g., Ollama where each element in the ostream is of type
 ollama.ChatResponse(), and the string of that is in ["message"]["content"] of each element
-- **callback_token : Callable**  
+- **callback_token : Callable**
 Each time an element of the stream has been added to the result, i.e.,
  it did not lead to termination, this callback is called if not None.  
 Can be used, e.g., to stream the processing as it happens.  
 Unfortunately, the repeated line termination will have been streamed.
-- **callback_line : Callable**  
+- **callback_line : Callable**
 Similar to callback token, but for each completed line. If the line
 did not trigger max_linerepeats, this callback is called.  
 Can be used, e.g., to stream only fully accepted lines.
-- **max_linerepeats : int**  
+- **max_linerepeats : int**
 Maximum number of line repeats allowed. Defaults to 0 (no limit).
-- **max_lines : int**  
+- **max_lines : int**
 Maximum number of lines allowed. Defaults to 0 (no limit).
-- **max_paragraphs : int**  
+- **max_paragraphs : int**
 Maximum number of paragraphs allowed. Defaults to 0 (no limit).
+- **max_linetokens : int**
+Maximum number of tokens allowed in a single line. Defaults to 0 (no limit).
 
 ## The process() function
 Reads items from the Iterable of the StreamValve and returns a dict containing reconstructed text,
